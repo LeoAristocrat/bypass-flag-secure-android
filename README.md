@@ -1,13 +1,3 @@
-<p align="center">
-  <img src="https://raw.githubusercontent.com/LeoAristocrat/bypass-flag-secure-android/main/banner.png" alt="Bypass FLAG_SECURE Banner" width="800">
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Platform-Android-green?style=for-the-badge" alt="Platform">
-  <img src="https://img.shields.io/badge/Method-Smali%20Patch-blue?style=for-the-badge" alt="Method">
-  <img src="https://img.shields.io/badge/License-MIT-brightgreen?style=for-the-badge" alt="License">
-  <img src="https://img.shields.io/badge/Status-Stable-success?style=for-the-badge" alt="Status">
-</p>
 
 # 🚀 Bypass FLAG_SECURE in Android Apps
 
