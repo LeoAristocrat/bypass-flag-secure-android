@@ -1,103 +1,57 @@
-# 🚫 Bypass Android FLAG_SECURE Restrictions
-> Disable screenshot and screen recording restrictions on Android apps by bypassing `FLAG_SECURE`.
+# Bypass Android FLAG_SECURE Restrictions
 
----
+Module-only Android security research project by **Leo Aristocrat**, with separate Magisk and KernelSU packages. The current `v0.1.0` milestone is intentionally a safe no-op: it validates installation, records a harmless boot marker, exposes diagnostics through the manager action, and cleanly uninstalls.
 
-## 📜 Overview
+It does **not** modify Android secure-window behavior, hook application processes, hide root, bypass Play Integrity, or target third-party applications.
 
-Many Android apps prevent screenshots and screen recordings by setting a flag called `FLAG_SECURE`.  
-This flag has a constant value of `8192 (0x00002000)`.
+## Current capabilities
 
-This guide explains how to **bypass FLAG_SECURE** by editing Smali code manually or using regex automation in tools like MT Manager.
+- Separate manager-only ZIPs for Magisk and KernelSU
+- Android 12 through Android 17 installer guard
+- ABI and root-manager validation
+- No `/system` overlay, SELinux policy, networking, or native injection
+- Diagnostics through `action.sh`; no Android UI application
+- Deterministic ZIP creation with SHA-256 checksums
+- Automated manifest, path, line-ending, permission, and content validation
+- Documented compatibility and recovery procedures
 
----
+## Build
 
-## 📚 Official Documentation
+Python 3.10 or newer is the only build dependency.
 
-- [WindowManager.LayoutParams.FLAG_SECURE](https://developer.android.com/reference/android/view/WindowManager.LayoutParams#FLAG_SECURE)
-- [Display.FLAG_SECURE](https://developer.android.com/reference/android/view/Display#FLAG_SECURE)
-
----
-
-## 🔥 How FLAG_SECURE Is Used
-
-In Android apps, you will usually find code like:
-```smali
-Landroid/app/Activity;->getWindow()Landroid/view/Window;
-```
-Then followed by methods:
-```smali
-Landroid/view/Window;->setFlags(II)V
-Landroid/view/Window;->addFlags(I)V
-```
-If you see the `0x2000` constant being used in these functions, it is responsible for enabling screenshot and recording restrictions.
-
----
-
-## 🛠 Manual Bypass
-
-### Steps:
-1. Open the decompiled Smali code.
-2. Search for calls to `addFlags` or `setFlags`.
-3. Check if the constant `0x2000` is used.
-4. Replace `0x2000` with `0x0`.
-
-This change disables the secure flag, allowing screenshots and recordings.
-
----
-
-## 🧩 Automated Bypass using Regex (MT Manager)
-
-To speed things up, you can automate the search and replace process with a regex.
-
-### Regex to Search
-```regex
-(const\/)16(\s[pv]\d{1,2},\s0x)200(0\n\n(\s{4}\.line\s\d+\n)?\s{4}invoke-virtual\s\{[pv]\d{1,2},\s[pv]\d{1,2}(,\s[pv]\d{1,2})?\},\sLandroid\/view\/Window;->(add|set)Flags\(II?\)V)
+```shell
+python tools/build.py
+python tools/validate.py dist/*.zip
+python -m unittest discover -s tests -v
 ```
 
-### Replacement Text
-```text
-$14$2$3
-```
+On Windows, `scripts/build.ps1` runs the same build and validation flow. On Linux or macOS, use `scripts/build.sh`.
 
-✅ **Explanation:**
-- `$14` is **the digit 4** added after the first captured group (it is not referring to a capture group number).
-- It modifies the flag value from `0x2000` to `0x0`.
+Artifacts are written to `dist/`:
 
----
+- `bypass-flag-secure-android-magisk-v0.1.0.zip`
+- `bypass-flag-secure-android-kernelsu-v0.1.0.zip`
+- `bypass-flag-secure-android-source-v0.1.0.zip`
+- `SHA256SUMS`
 
-## 🛠 Recommended Tools
+## Installation
 
-| Tool | Purpose |
-|:----:|:--------|
-| [MT Manager](https://mt2.cn/) | APK editor for Android |
-| [Jadx](https://github.com/skylot/jadx) | Decompiler to Java source |
-| [Smali/Baksmali](https://github.com/JesusFreke/smali) | Smali disassembler/assembler |
+Install the ZIP matching the active root manager. These packages are designed for installation inside Magisk Manager or KernelSU Manager; recovery installation is not supported.
 
----
+After reboot, open the module in the manager and use its **Action** button to print the module status, Android release, API level, ABI, and last observed boot time.
 
-## ⚠️ Important Notes
+## Project direction
 
-- This regex works in **most simple cases** but **not 100% universal**.
-- Complex apps may hide the secure flag dynamically or obfuscate the value.
-- Manual analysis is needed for highly protected apps.
-- Always create a **backup** of the APK before making changes.
+The next milestone adds a native Zygisk skeleton that remains disabled unless the target package is explicitly authorized by package name, debuggable status, opt-in metadata, and signing-certificate hash. A minimal test fixture may live under `tests/fixtures`, but no controller or launcher app is part of the product.
 
----
+See [Architecture](docs/architecture.md), [Compatibility](docs/compatibility.md), [Recovery](docs/recovery.md), and [Security](SECURITY.md).
 
-## 📢 Legal Disclaimer
+## Upstream documentation
 
-This guide is for **educational purposes only**.  
-Modifying APK files may **violate terms of service** or **local laws**.  
-The author assumes **no responsibility** for any misuse.
+- [Magisk developer guides](https://topjohnwu.github.io/Magisk/guides.html)
+- [KernelSU module guide](https://kernelsu.org/guide/module.html)
+- [Android `FLAG_SECURE`](https://developer.android.com/reference/android/view/WindowManager.LayoutParams#FLAG_SECURE)
 
----
+## License
 
-## ⭐ Support
-
-If you find this project useful, please consider giving it a ⭐ to support further development!
-
----
-
-# Thank you for reading! 🚀
-
+Apache-2.0. See [LICENSE](LICENSE).

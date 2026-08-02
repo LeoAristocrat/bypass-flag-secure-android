@@ -1,0 +1,6 @@
+id=bypass_flag_secure_android
+name=Bypass Android FLAG_SECURE Restrictions (Magisk)
+version=0.1.0
+versionCode=100
+author=Leo Aristocrat
+description=Safe module packaging milestone: diagnostics only; no hooks or secure-window changes.
